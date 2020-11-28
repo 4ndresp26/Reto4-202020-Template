@@ -180,25 +180,6 @@ def totalConnections(analyzer):
     """
     return gr.numEdges(analyzer['connections'])
 
-def servedRoutes(analyzer):
-    """
-    Retorna la estación que sirve a mas rutas.
-    Si existen varias rutas con el mismo numero se
-    retorna una de ellas
-    """
-    lstvert = m.keySet(analyzer['stops'])
-    itlstvert = it.newIterator(lstvert)
-    maxvert = None
-    maxdeg = 0
-    while(it.hasNext(itlstvert)):
-        vert = it.next(itlstvert)
-        lstroutes = m.get(analyzer['stops'], vert)['value']
-        degree = lt.size(lstroutes)
-        if(degree > maxdeg):
-            maxvert = vert
-            maxdeg = degree
-    return maxvert, maxdeg
-
 def top_llegada(analyzer):
     Top=[None,None,None]
     Max=[0,0,0]
