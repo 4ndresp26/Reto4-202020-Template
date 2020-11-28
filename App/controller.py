@@ -93,33 +93,19 @@ def numSCC(analyzer):
     """
     return model.numSCC(analyzer)
 
+
 def sameCC(sc,station1, station2):
     """
     Numero de componentes fuertemente conectados
     """
     return model.sameCC(sc,station1, station2)
     
-def minimumCostPaths(analyzer, initialStation):
-    """
-    Calcula todos los caminos de costo minimo de initialStation a todas
-    las otras estaciones del sistema
-    """
-    return model.minimumCostPaths(analyzer, initialStation)
-
 
 def hasPath(analyzer, destStation):
     """
     Informa si existe un camino entre initialStation y destStation
     """
     return model.hasPath(analyzer, destStation)
-
-
-def minimumCostPath(analyzer, destStation):
-    """
-    Retorna el camino de costo minimo desde initialStation a destStation
-    """
-    return model.minimumCostPath(analyzer, destStation)
-
 
 def servedRoutes(analyzer):
     """
@@ -128,4 +114,103 @@ def servedRoutes(analyzer):
     maxvert, maxdeg = model.servedRoutes(analyzer)
     return maxvert, maxdeg
 
+def Rutas_edad(analyzer,opt):
+    if opt == "1":
+        menor=0
+        mayor=10
+    elif opt == "2":
+        menor=11
+        mayor=20
+    elif opt == "3":
+        menor=21
+        mayor=30
+    elif opt == "4":
+        menor=31
+        mayor=40
+    elif opt == "5":
+        menor=41
+        mayor=50
+    elif opt == "6":
+        menor=51
+        mayor=60
+    elif opt == "7":
+        menor=61
+        mayor=200
+    else:
+        return("opción no valida")
+    cond='año_lleg'
+    condt='año_sal'
+    ruta=None
+    inicial,num=model.Rutas_edad(analyzer,menor,mayor,cond)
+    final,number=model.Rutas_edad(analyzer,menor,mayor,condt)
+    model.minimumCostPaths(analyzer,inicial)
+    if hasPath(analyzer, final) != False:
+        ruta=model.minimumCostPath(analyzer,final)
+        lista=[]
+        for i in ruta:
+            for llave in ruta[i]:
+                if ruta[i][llave] != None:
+                    x=(ruta[i]["info"]['vertexA'],ruta[i]["info"]['vertexB'])
+                    lista.append(x)
+                else:
+                    ruta=lista
+                    Rt={"e_i":inicial,"e_f":final,"n":num,"num":number,"ruta":ruta}
+                    return Rt
+        
+
+        
+def Mas_cercana(analyzer, ubi1, ubi2):
+    inicial=model.Estacion_cercana(analyzer, ubi1)
+    final=model.Estacion_cercana(analyzer, ubi2)
+    return inicial,final
+
+
+
+def top_llegada(analyzer):
+    lista=model.top_llegada(analyzer)
+    cond="nombre"
+    for i in lista:
+        print ("      *",lector_id(analyzer, i,cond))
+
+
+
+def min_use(analyzer):
+    lista=model.min_use(analyzer)
+    Top=[None,None,None]
+    Min=[100,100,100]
+    for i in lista:
+        for valor in range(0,len(Min)):
+            if lista[i] < Min[valor] and i not in Top:
+                Min[valor]=lista[i]
+                Top[valor]=i
+    cond="nombre"
+    for i in Top:
+        print ("      *",lector_id(analyzer, i,cond))
+
+
+
+def top_salida(analyzer):
+    lista=model.top_salida(analyzer)
+    cond="nombre"
+    for i in lista:
+        print ("      *",lector_id(analyzer, i, cond))
+    
+
+
+def lector_id(analyzer, ids, caract):
+    return (analyzer["stops"][ids][caract])
+
+
+
+def mant_bikes(analyzer,id,fecha):
+    INFO={"Estaciones":[],"libre":0,"uso":0}
+    rt=model.mant_bikes(analyzer,id,fecha)
+    time=model.temp_use(analyzer,id,fecha)
+    if rt["Estaciones"]!=[]:
+        for id in rt["Estaciones"]:
+            INFO["Estaciones"].append(lector_id(analyzer,id,"nombre"))
+    INFO["libre"]=time-rt["duracion"]
+    INFO["uso"]=rt["duracion"]
+    return INFO
+    
 # ___________________________________________________

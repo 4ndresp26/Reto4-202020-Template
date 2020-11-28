@@ -57,10 +57,10 @@ def printMenu():
     print("1- Inicializar Analizador")
     print("2- Cargar información de citibike")
     print("3- Calcular componentes conectados")
-    print("4- Establecer estación base:")
-    print("5- Hay camino entre estacion base y estación: ")
-    print("6- Ruta de costo mínimo desde la estación base y estación: ")
-    print("7- Estación que sirve a mas rutas: ")
+    print("4- Ruta turística Circular: ")
+    print("5- Ruta por edad: ")
+    print("6- Estación más cercana: ")
+    print("7- Mantenimiento de bicicletas(Bono): ")
     print("0- Salir")
     print("*******************************************")
 
@@ -72,41 +72,70 @@ def optionTwo():
     numvertex = controller.totalStops(cont)
     print('Numero de vertices: ' + str(numvertex))
     print('Numero de arcos: ' + str(numedges))
-    print('El limite de recursion se ajusta a: ' + str(recursionLimit))
 
 
 def optionThree():
-    id1=input("digitie el id de la estación 1: ")
-    id2=input("digitie el id de la estación 2: ")
-    print('El número de componentes conectados es: ' +
-          str(controller.numSCC(cont)))
-    print("la estación ",id1," y ",id2, controller.sameCC(cont,id1,id2))
-
+    print ( 'El número de componentes conectados es:'  +
+          str ( controller.numSCC( cont )))
+    print ( "la estación" , id1 , "y" , id2 , controller.sameCC( cont , id1 , id2 ))
 
 def optionFour():
-    controller.minimumCostPaths(cont, initialStation)
-
+    print('Las estaciones Top de llegada son: ')
+    controller.top_llegada(cont)
+    print('Las estaciones  Top de Salida son: ')
+    controller.top_salida(cont)
+    print('Las estaciones menos usadas son: ')
+    controller.min_use(cont)
 
 def optionFive():
-    haspath = controller.hasPath(cont, destStation)
-    print('Hay camino entre la estación base : ' +
-          'y la estación: ' + destStation + ': ')
-    print(haspath)
-
+    rango=input("""Rangos de edad:
+    1.0 años - 10 anños.
+    2.11 años - 20 anños.
+    3.21 años - 30 anños.
+    4.31 años - 40 anños.
+    5.41 años - 50 anños.
+    6.51 años - 60 anños.
+    7.60 años o más. 
+    Ingrese un rango: """)
+    dicc=controller.Rutas_edad(cont,rango)
+    if dicc=="opción no valida":
+        print (dicc)
+    else:
+        print("La estación con mas salidas en ese rango fue ",controller.lector_id(cont,dicc["e_i"],"nombre"),", con ",dicc["n"])
+        print("La estación con mas llegadas en ese rango fue ",controller.lector_id(cont,dicc["e_f"],"nombre"),", con ",dicc["num"])
+        if dicc["ruta"] == None:
+            print("No estan conectadas esas estaciones")
+        else:
+            print("La mejor ruta para recorrer estas estaciones es: ")
+            for dato in dicc["ruta"]:
+                inicial,final=dato
+                print("de: ", controller.lector_id(cont,inicial,"nombre"), " a ",controller.lector_id(cont,final,"nombre"))
 
 def optionSix():
-    path = controller.minimumCostPath(cont, destStation)
-    if path is not None:
-        pathlen = stack.size(path)
-        print('El camino es de longitud: ' + str(pathlen))
-        while (not stack.isEmpty(path)):
-            stop = stack.pop(path)
-            print(stop)
-    else:
-        print('No hay camino')
-
+    local1=float(input("Digite  la ubicación de partida (latitud): "))
+    local2=float(input("Digite  la ubicación de partida (longitud): "))
+    ubi1=(local1,local2)
+    local1=float(input("Digite  la ubicación de llegada (latitud): "))
+    local2=float(input("Digite  la ubicación de llegada (longitud): "))
+    ubi2=(local1,local2)
+    lat,lon=controller.Mas_cercana(cont, ubi1, ubi2)
+    name1=controller.lector_id(cont,lat,"nombre")
+    name2=controller.lector_id(cont,lon,"nombre")
+    print("La estación mas cercana al punto de partida es: ",name1,", id:", lat)
+    print("La estación mas cercana al punto de llegada es: ",name2,", id:", lon)
 
 def optionSeven():
+    fecha=input("Digite la fecha de consulta: ")
+    id=input("Digite la id de la bicicleta a consultar: ")
+    info=controller.mant_bikes(cont,id,fecha)
+    if info["Estaciones"]==[]:
+        print("la bicicleta no tuvo recorridos hasta ese dia.")
+    else:
+        print("las estaciones por las que ha pasado la bicicleta son: ",info["Estaciones"])
+        print("El tiempo en uso de la bicicleta fue de : ",info["uso"], " segundos")
+        print("El tiempo en libre de la bicicleta fue de : ",info["libre"], " segundos")
+
+def optionEight():
     maxvert, maxdeg = controller.servedRoutes(cont)
     print('Estación: ' + maxvert + '  Total rutas servidas: '
           + str(maxdeg))
@@ -129,22 +158,20 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs[0]) == 3:
+        id1 = input ( "digitie el id de la estación 1:" )
+        id2 = input ( "digitie el id de la estación 2:" )
         executiontime = timeit.timeit(optionThree, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs[0]) == 4:
-        msg = "Estación Base: BusStopCode-ServiceNo (Ej: 75009-10): "
-        initialStation = input(msg)
         executiontime = timeit.timeit(optionFour, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs[0]) == 5:
-        destStation = input("Estación destino (Ej: 15151-10): ")
         executiontime = timeit.timeit(optionFive, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs[0]) == 6:
-        destStation = input("Estación destino (Ej: 15151-10): ")
         executiontime = timeit.timeit(optionSix, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
